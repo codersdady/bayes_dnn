@@ -1,0 +1,7 @@
+buying,maint,doors,persons,lug_boot,safety
+med,med,4,more,big,high
+med,med,4,more,big,low
+med,med,4,more,big,med
+med,med,4,more,big,high
+med,med,5more,2,small,low
+med,med,5more,2,small,med

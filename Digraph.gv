@@ -1,0 +1,14 @@
+digraph {
+	graph [size="12,12"]
+	node [align=left fontsize=12 height=0.2 ranksep=0.1 shape=box style=filled]
+	feel -> buying
+	feel -> persons
+	feel -> maint
+	feel -> safety
+	feel -> doors
+	feel -> lug_boot
+	buying -> maint
+	buying -> safety
+	safety -> lug_boot
+	lug_boot -> doors
+}
