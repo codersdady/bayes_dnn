@@ -22,7 +22,7 @@ test=pd.read_csv('./test.txt')
 
 model.fit(train, estimator=BayesianEstimator, prior_type="K2")
 
-def showBN(model, save=False):
+def showBN(model, save=true):
     node_attr = dict(
         style='filled',
         shape='box',

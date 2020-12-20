@@ -5,23 +5,21 @@ from pandas.core.frame import DataFrame
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import time
 
-model = BayesianModel([('feel', 'buying'),
-                       ('feel', 'persons'),
-                       ('feel', 'maint'),
-                       ('feel', 'safety'),
-                       ('feel', 'doors'),
-                       ('feel', 'lug_boot'),
-                       ('buying', 'maint'),
-                       ('buying', 'safety'),
-                       ('safety', 'lug_boot'),
-                       ('lug_boot', 'doors')])
-train=pd.read_csv('./car.data')
-test=pd.read_csv('./test.txt')
+start=time.process_time()
+model = BayesianModel([('scene', 'distant'),
+                       ('scene', 'light'),
+                       ('scene', 'en_light'),
+                       ('scene', 're'),
+                       ('distant', 'light'),
+                       ('light', 'en_light')])
+train=pd.read_excel('./6.xlsx')
+test=pd.read_excel('./6.xlsx')
 
 model.fit(train, estimator=BayesianEstimator, prior_type="K2")
 
-def showBN(model, save=False):
+def showBN(model, save=True):
     node_attr = dict(
         style='filled',
         shape='box',
@@ -39,18 +37,28 @@ def showBN(model, save=False):
         dot.view(cleanup=True)
     return dot
 
-predict_data=test.drop(columns=['feel'],axis='1')
+predict_data=test.drop(columns=['scene'],axis='1')
 # re=pd.read_csv('./re.txt')
 # print(re.info())
 # print(predict_data.info())
-
+print("预测数据集")
+print(predict_data)
 y_pred = model.predict(predict_data)
+showBN(model)
+print("预测结果")
+print(y_pred)
 # 预测结果
 
-# print(model.get_cpds()) 各个节点条件概率情况
+print("节点条件概率情况")
+print(model.get_cpds())
+# 各个节点条件概率情况
 # re['doors'] = re['doors'].astype('object')
 
 # print(model.predict_probability(re))
 # 预测概率
-
-# print((y_pred['feel']==test['feel']).sum()/len(test))  准确率
+print("预测准确率")
+print((y_pred['scene']==test['scene']).sum()/len(test))
+end=time.process_time()
+print("总运行时间：")
+print('Running time: %s Seconds'%(end-start))
+# 准确率

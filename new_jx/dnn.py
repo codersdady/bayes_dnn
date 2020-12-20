@@ -1,11 +1,9 @@
 import datetime
-import os
 
 import torch
 import torch.nn as nn
 import pandas as pd
 import numpy as np
-from sklearn.decomposition import PCA
 import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 from torch.autograd import Variable
@@ -19,17 +17,17 @@ from sklearn.model_selection import train_test_split
 HIDDEN_UNITS = 15
 LEARNING_RATE = 0.001  #0.001
 EPOCH = 400      #400 ;
-BATCH_SIZE = 100    #15
+BATCH_SIZE = 70    #15
 # Using 2 hidden layers  dnn网络
-input_size = 14
-num_classes = 2
+input_size = 1
+num_classes = 4
 
 class DNN(nn.Module):    #dnn网络
     def __init__(self, input_size, num_classes):
         super().__init__()
-        self.fc1 = nn.Linear(input_size, 29)
-        # self.fc2 = nn.Linear(40, 20)
-        self.fc3 = nn.Linear(29, num_classes)
+        self.fc1 = nn.Linear(input_size, 3)
+        # self.fc2 = nn.Linear(100, 50)
+        self.fc3 = nn.Linear(3, num_classes)
     def forward(self, x):
         x = F.relu(self.fc1(x))
         # x = F.relu(self.fc2(x))
@@ -38,88 +36,51 @@ class DNN(nn.Module):    #dnn网络
         return y_hat
 
 def genarate_data(device):    #准备数据
-    train = pd.read_excel('./data.xlsx')
-    test = pd.read_excel('./test.xlsx')
+
+    # 训练集：82%
+    # 测试集：83.30%
+    all=pd.read_csv('ElectionData.csv')
 
 
+    # 训练集：82%
+    # 测试集：83.39%
+    del all['blankVotes']
+    del all['numParishesApproved']
+    del all['territoryName']
+    del all['Party']
+    del all['pre.nullVotes']
+    del all['pre.nullVotesPercentage']
+    del all['nullVotesPercentage']
+    del all['pre.votersPercentage']
+    del all['votersPercentage']
+    del all['nullVotes']
+    del all['blankVotesPercentage']
+    del all['pre.blankVotesPercentage']
+    del all['totalMandates']
+    del all['numParishes']
+    del all['subscribedVoters']
+    del all['pre.totalVoters']
+    del all['pre.subscribedVoters']
+    del all['totalVoters']
+    del all['pre.blankVotes']
+    del all['availableMandates']
+    del all['validVotesPercentage']
+    del all['Percentage']
+    del all['Votes']
+    del all['Mandates']
 
-    #85%
-
-    #83%
-    # del train['occ']
-    # del test['occ']
-    #
-    # del train['edcnum']
-    # del test['edcnum']
-    #
-    # del train['age']
-    # del test['age']
-
-
-    # 83%
-
-    del test['wc']
-    del test['hpw']
-    del test['nc']
-    del test['fn']
-    del test['race']
-    del test['sex']
-    del test['age']
-    del test['mstatus']
-
-    del train['wc']
-    del train['hpw']
-    del train['nc']
-    del train['fn']
-    del train['race']
-    del train['sex']
-    del train['age']
-    del train['mstatus']
-
-
-
-
-    train_label = train['target'].values
-    test_label = test['target'].values
-    train = train.drop(['target'], axis=1).values
-    test = test.drop(['target'], axis=1).values
-
-
-    # 82.4%
-    pca = PCA(n_components=5)
-    train = pca.fit_transform(train)
-    ratio_pca = pca.explained_variance_ratio_
-    # print(pca.explained_variance_ratio_)
-    # t_a=0
-    # for a in ratio_pca:
-    #     t_a+=a
-    # print(t_a)
-    # # 0.9333174096067566
-    test=pca.transform(test)
-
-    # train=train.values
-    # test=test.values
-
-
-
-
-
-    # train, test = train_test_split(data, test_size=0.2, random_state=4)
-    #print (test)
-
-
+    print(all)
+    train, test = train_test_split(all, test_size=0.2, random_state=4)
     # print(all)
+    train_label=train['target'].values
+    train_data=train.drop(['target'],axis=1).values
+    test_label = test['target'].values
+    test_data = test.drop(['target'],axis=1).values
 
-    # train_data=train.drop(['target'],axis=1).values
-    train_data=train.values
-
-    # test_data = test.drop(['target'],axis=1).values
-    test_data=test.values
-
-    # np.save('E:\\pycharpro\\prunner\\shouru_prunner\\train_data', train)
-    # np.save('E:\\pycharpro\\prunner\\shouru_prunner\\test_data',test)
-    # np.save('E:\\pycharpro\\prunner\\shouru_prunner\\test_label',test_label)
-    # np.save('E:\\pycharpro\\prunner\\shouru_prunner\\train_label',train_label)
+    np.save('E:\\pycharpro\\prunner\\jinxuan_prunner\\train_data',train_data)
+    np.save('E:\\pycharpro\\prunner\\jinxuan_prunner\\test_data',test_data)
+    np.save('E:\\pycharpro\\prunner\\jinxuan_prunner\\test_label',test_label)
+    np.save('E:\\pycharpro\\prunner\\jinxuan_prunner\\train_label',train_label)
 
     test_data = torch.Tensor(test_data).to(device)
     test_label = torch.LongTensor(test_label).to(device)
@@ -129,8 +90,6 @@ def genarate_data(device):    #准备数据
 
 def main():
     # we want to use GPU if we have one
-    # print(os.path.abspath('E:\pycharpro\model'))
-    start = datetime.datetime.now()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     test_data, test_label, train_data, train_label,test = genarate_data(device)
     # prepare the data loader
@@ -145,6 +104,8 @@ def main():
                                      batch_size=BATCH_SIZE,
                                      shuffle=False)
     model = DNN(input_size, num_classes).to(device)
+    # for name, parameters in model.named_parameters():
+    #     print(name, ':', parameters.size())
     # using crossentropy loss on classification problem
     criterion = nn.CrossEntropyLoss()
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -162,7 +123,7 @@ def main():
             total_train += label.size(0)
             correct_train += (answer == label).sum()
         print('Epoch {:3d} Accuracy on training data: {}% ({}/{})'
-              .format(epoch,  ('%.2f' % (100 * float(correct_train) / float(total_train))), correct_train, total_train))
+              .format(epoch, ('%.2f' % (100 * float(correct_train) / float(total_train))), correct_train, total_train))
         # pytorch 0.4 feature, not calculate grad on test set
         # 预测阶段，不跟新权值
         with torch.no_grad():
@@ -189,13 +150,15 @@ def main():
     #     test=test.reset_index(drop=True)
     #     final=pd.concat([test,ct],axis=1)
     #     final.to_csv("final.csv", index=False,encoding = "GB2312")
-    # torch.save(model, 'E:\pycharpro\model\sr_pca2.pkl')
-    end = datetime.datetime.now()
-    print(end - start)
+    torch.save(model, 'E:\pycharpro\model\jx24.pkl')
 
 
 if __name__ == '__main__':
+    start = datetime.datetime.now()
     main()
+    end = datetime.datetime.now()
+    print(end-start)
+
 
 
 
