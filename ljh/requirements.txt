@@ -1,7 +1,7 @@
 numpy==1.13.0
 scikit-fuzzy==0.2
 matplotlib==2.0.0
-scipy==0.19.1
+scipy==1.10.0
 pymc3==3.0
 
 
